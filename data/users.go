@@ -72,10 +72,22 @@ func CreateUsers(count int, props map[string]interface{}) []entity.User {
 }
 
 func CreateUser(props map[string]interface{}) *entity.User {
-	return entity.NewUser(vars.ADMIN_USER,
+	return entity.NewUser(getProperty(props, "userid", randomString(10)).(string),
 		getProperty(props, "firstName", randomString(15)).(string),
 		getProperty(props, "lastName", randomString(15)).(string),
 		getProperty(props, "email", randomString(15)+"@zbitech.local").(string),
 		getProperty(props, "role", randomValue(roleTypes)).(ztypes.Role),
 		getProperty(props, "subscription", randomValue(subscriptionTypes)).(ztypes.SubscriptionLevel))
+}
+
+func CreateAPKeys(count int, userid string) []entity.APIKey {
+	var keys = make([]entity.APIKey, count)
+	for index := range keys {
+		keys[index] = CreateAPIKey(userid)
+	}
+	return keys
+}
+
+func CreateAPIKey(userid string) entity.APIKey {
+	return entity.NewAPIKey(userid, vars.AppConfig.Policy.TokenExpirationPolicy)
 }

@@ -32,6 +32,7 @@ type FakeProjectResourceManager struct {
 	FakeCreateSnapshotAssets           func(ctx context.Context, instance entity.InstanceIF, volume string) ([]spec.ResourceObject, error)
 	FakeCreateSnapshotScheduleAssets   func(ctx context.Context, instance entity.InstanceIF, volume string, schedule ztypes.ZBIBackupScheduleType) ([]spec.ResourceObject, error)
 	FakeCreateRotationAssets           func(ctx context.Context, instance entity.InstanceIF) ([]spec.ResourceObject, error)
+	FakeCreateUpdateResourceAssets     func(ctx context.Context, instance entity.InstanceIF) ([]spec.ResourceObject, error)
 }
 
 func NewFakeProjectResourceManager() interfaces.ProjectResourceManagerIF {
@@ -78,6 +79,10 @@ func (f FakeProjectResourceManager) CreateInstanceAssets(ctx context.Context, ac
 	return f.FakeCreateInstanceAssets(ctx, action, project, instance)
 }
 
+func (f FakeProjectResourceManager) CreateUpdateResourceAssets(ctx context.Context, instance entity.InstanceIF) ([]spec.ResourceObject, error) {
+	return f.FakeCreateUpdateResourceAssets(ctx, instance)
+}
+
 func (f FakeProjectResourceManager) CreateIngressAsset(ctx context.Context, projIngress *unstructured.Unstructured, instance entity.InstanceIF, action ztypes.EventAction) (*spec.ResourceObject, error) {
 	return f.FakeCreateIngressAsset(ctx, projIngress, instance, action)
 }
@@ -94,12 +99,12 @@ func (f FakeProjectResourceManager) CreateStartResourceAssets(ctx context.Contex
 	return f.FakeCreateStartResourceAssets(ctx, instance)
 }
 
-func (f FakeProjectResourceManager) CreateSnapshotAssets(ctx context.Context, instance entity.InstanceIF, volume string) ([]spec.ResourceObject, error) {
-	return f.FakeCreateSnapshotAssets(ctx, instance, volume)
+func (f FakeProjectResourceManager) CreateSnapshotAssets(ctx context.Context, instance entity.InstanceIF, volumeName string) ([]spec.ResourceObject, error) {
+	return f.FakeCreateSnapshotAssets(ctx, instance, volumeName)
 }
 
-func (f FakeProjectResourceManager) CreateSnapshotScheduleAssets(ctx context.Context, instance entity.InstanceIF, volume string, schedule ztypes.ZBIBackupScheduleType) ([]spec.ResourceObject, error) {
-	return f.FakeCreateSnapshotScheduleAssets(ctx, instance, volume, schedule)
+func (f FakeProjectResourceManager) CreateSnapshotScheduleAssets(ctx context.Context, instance entity.InstanceIF, volumeName string, schedule ztypes.ZBIBackupScheduleType) ([]spec.ResourceObject, error) {
+	return f.FakeCreateSnapshotScheduleAssets(ctx, instance, volumeName, schedule)
 }
 
 func (f FakeProjectResourceManager) CreateRotationAssets(ctx context.Context, instance entity.InstanceIF) ([]spec.ResourceObject, error) {

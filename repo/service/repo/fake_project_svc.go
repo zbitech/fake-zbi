@@ -16,8 +16,6 @@ type FakeProjectService struct {
 	FakeGetProjectsByOwner         func(ctx context.Context, owner string) ([]entity.Project, error)
 	FakeGetProjectsByTeam          func(ctx context.Context, team string) ([]entity.Project, error)
 	FakeUpdateProjectStatus        func(ctx context.Context, project string, status ztypes.StatusType, timestamp time.Time) error
-	FakeCreateProjectEvent         func(ctx context.Context, project, userId string, action ztypes.EventAction, evtErr error) error
-	FakeGetProjectEvents           func(ctx context.Context, project string) ([]entity.ProjectEvent, error)
 	FakeGetInstances               func(ctx context.Context) ([]entity.InstanceIF, error)
 	FakeCreateInstance             func(ctx context.Context, instance entity.InstanceIF) error
 	FakeUpdateInstance             func(ctx context.Context, instance entity.InstanceIF) error
@@ -25,21 +23,27 @@ type FakeProjectService struct {
 	FakeGetInstancesByProject      func(ctx context.Context, project string) ([]entity.InstanceIF, error)
 	FakeGetInstancesByOwner        func(ctx context.Context, owner string) ([]entity.InstanceIF, error)
 	FakeUpdateInstanceStatus       func(ctx context.Context, project, name string, status ztypes.StatusType, timestamp time.Time) error
-	FakeCreateInstanceEvent        func(ctx context.Context, project, instance, userId string, action ztypes.EventAction, evtErr error) error
-	FakeGetInstanceEvents          func(ctx context.Context, project, instance string) ([]entity.InstanceEvent, error)
-	FakeCreateProjectResources     func(ctx context.Context, project string, resources ...entity.KubernetesResource) error
-	FakeUpdateProjectResources     func(ctx context.Context, project string, resources ...entity.KubernetesResource) error
+	FakeCreateProjectResources     func(ctx context.Context, resources ...entity.KubernetesResource) error
+	FakeUpdateProjectResources     func(ctx context.Context, resources ...entity.KubernetesResource) error
 	FakeGetProjectResources        func(ctx context.Context, project string) ([]entity.KubernetesResource, error)
 	FakeGetProjectResourcesByType  func(ctx context.Context, project string, rType ztypes.ResourceObjectType) ([]entity.KubernetesResource, error)
 	FakeGetProjectResourceByType   func(ctx context.Context, project string, rType ztypes.ResourceObjectType, name string) (*entity.KubernetesResource, error)
-	FakeCreateInstanceResources    func(ctx context.Context, project, instance string, resources ...entity.KubernetesResource) error
-	FakeUpdateInstanceResources    func(ctx context.Context, project, instance string, resources ...entity.KubernetesResource) error
+	FakeCreateInstanceResources    func(ctx context.Context, resources ...entity.KubernetesResource) error
+	FakeUpdateInstanceResources    func(ctx context.Context, resources ...entity.KubernetesResource) error
 	FakeGetInstanceResourcesByType func(ctx context.Context, project, instance string, rType ztypes.ResourceObjectType) ([]entity.KubernetesResource, error)
 	FakeGetInstanceResources       func(ctx context.Context, project, instance string) ([]entity.KubernetesResource, error)
 	FakeGetInstanceResourceByType  func(ctx context.Context, project, instance string, rType ztypes.ResourceObjectType, name string) (*entity.KubernetesResource, error)
 	FakeGetUserSummary             func(ctx context.Context, userId string) (*entity.ResourceSummary, error)
 	FakeGetProjectStats            func(ctx context.Context, project string) *entity.ProjectSummary
 	FakeGetOwnerStats              func(ctx context.Context, owner string) *entity.ProjectSummary
+	FakeUpdateSnapshotResource     func(ctx context.Context, snapshot *entity.SnapshotResource) error
+	FakeGetSnapshotResource        func(ctx context.Context, project, instance, name string) (*entity.SnapshotResource, error)
+	FakeGetSnapshotResources       func(ctx context.Context, project, instance string) ([]entity.SnapshotResource, error)
+	FakeDeleteSnapshotResource     func(ctx context.Context, project, instance, name string) error
+	FakeUpdateScheduleResource     func(ctx context.Context, schedule *entity.ScheduleResource) error
+	FakeGetScheduleResource        func(ctx context.Context, project, instance, name string) (*entity.ScheduleResource, error)
+	FakeGetScheduleResources       func(ctx context.Context, project, instance string) ([]entity.ScheduleResource, error)
+	FakeDeleteScheduleResource     func(ctx context.Context, project, instance, name string) error
 }
 
 func NewFakeProjectService() interfaces.ProjectRepositoryIF {
@@ -74,14 +78,6 @@ func (f FakeProjectService) UpdateProjectStatus(ctx context.Context, project str
 	return f.FakeUpdateProjectStatus(ctx, project, status, timestamp)
 }
 
-func (f FakeProjectService) CreateProjectEvent(ctx context.Context, project, actor string, action ztypes.EventAction, evtErr error) error {
-	return f.FakeCreateProjectEvent(ctx, project, actor, action, evtErr)
-}
-
-func (f FakeProjectService) GetProjectEvents(ctx context.Context, project string) ([]entity.ProjectEvent, error) {
-	return f.FakeGetProjectEvents(ctx, project)
-}
-
 func (f FakeProjectService) GetInstances(ctx context.Context) ([]entity.InstanceIF, error) {
 	return f.FakeGetInstances(ctx)
 }
@@ -110,20 +106,12 @@ func (f FakeProjectService) UpdateInstanceStatus(ctx context.Context, project, n
 	return f.FakeUpdateInstanceStatus(ctx, project, name, status, timestamp)
 }
 
-func (f FakeProjectService) CreateInstanceEvent(ctx context.Context, project, instance, actor string, action ztypes.EventAction, evtErr error) error {
-	return f.FakeCreateInstanceEvent(ctx, project, instance, actor, action, evtErr)
+func (f FakeProjectService) CreateProjectResources(ctx context.Context, resources ...entity.KubernetesResource) error {
+	return f.FakeCreateProjectResources(ctx, resources...)
 }
 
-func (f FakeProjectService) GetInstanceEvents(ctx context.Context, project, instance string) ([]entity.InstanceEvent, error) {
-	return f.FakeGetInstanceEvents(ctx, project, instance)
-}
-
-func (f FakeProjectService) CreateProjectResources(ctx context.Context, project string, resources ...entity.KubernetesResource) error {
-	return f.FakeCreateProjectResources(ctx, project, resources...)
-}
-
-func (f FakeProjectService) UpdateProjectResources(ctx context.Context, project string, resources ...entity.KubernetesResource) error {
-	return f.FakeUpdateProjectResources(ctx, project, resources...)
+func (f FakeProjectService) UpdateProjectResources(ctx context.Context, resources ...entity.KubernetesResource) error {
+	return f.FakeUpdateProjectResources(ctx, resources...)
 }
 
 func (f FakeProjectService) GetProjectResources(ctx context.Context, project string) ([]entity.KubernetesResource, error) {
@@ -138,12 +126,12 @@ func (f FakeProjectService) GetProjectResourceByType(ctx context.Context, projec
 	return f.FakeGetProjectResourceByType(ctx, project, rType, name)
 }
 
-func (f FakeProjectService) CreateInstanceResources(ctx context.Context, project, instance string, resources ...entity.KubernetesResource) error {
-	return f.FakeCreateInstanceResources(ctx, project, instance, resources...)
+func (f FakeProjectService) CreateInstanceResources(ctx context.Context, resources ...entity.KubernetesResource) error {
+	return f.FakeCreateInstanceResources(ctx, resources...)
 }
 
-func (f FakeProjectService) UpdateInstanceResources(ctx context.Context, project, instance string, resources ...entity.KubernetesResource) error {
-	return f.FakeUpdateInstanceResources(ctx, project, instance, resources...)
+func (f FakeProjectService) UpdateInstanceResources(ctx context.Context, resources ...entity.KubernetesResource) error {
+	return f.FakeUpdateInstanceResources(ctx, resources...)
 }
 
 func (f FakeProjectService) GetInstanceResources(ctx context.Context, project, instance string) ([]entity.KubernetesResource, error) {
@@ -168,4 +156,36 @@ func (f FakeProjectService) GetProjectStats(ctx context.Context, project string)
 
 func (f FakeProjectService) GetOwnerStats(ctx context.Context, owner string) *entity.ProjectSummary {
 	return f.FakeGetOwnerStats(ctx, owner)
+}
+
+func (f FakeProjectService) GetSnapshotResource(ctx context.Context, project, instance, name string) (*entity.SnapshotResource, error) {
+	return f.FakeGetSnapshotResource(ctx, project, instance, name)
+}
+
+func (f FakeProjectService) UpdateScheduleResource(ctx context.Context, schedule *entity.ScheduleResource) error {
+	return f.FakeUpdateScheduleResource(ctx, schedule)
+}
+
+func (f FakeProjectService) GetScheduleResource(ctx context.Context, project, instance, name string) (*entity.ScheduleResource, error) {
+	return f.FakeGetScheduleResource(ctx, project, instance, name)
+}
+
+func (f FakeProjectService) GetScheduleResources(ctx context.Context, project, instance string) ([]entity.ScheduleResource, error) {
+	return f.FakeGetScheduleResources(ctx, project, instance)
+}
+
+func (f FakeProjectService) DeleteScheduleResource(ctx context.Context, project, instance, name string) error {
+	return f.FakeDeleteScheduleResource(ctx, project, instance, name)
+}
+
+func (f FakeProjectService) UpdateSnapshotResource(ctx context.Context, snapshot *entity.SnapshotResource) error {
+	return f.FakeUpdateSnapshotResource(ctx, snapshot)
+}
+
+func (f FakeProjectService) GetSnapshotResources(ctx context.Context, project, instance string) ([]entity.SnapshotResource, error) {
+	return f.FakeGetSnapshotResources(ctx, project, instance)
+}
+
+func (f FakeProjectService) DeleteSnapshotResource(ctx context.Context, project, instance, name string) error {
+	return f.FakeDeleteSnapshotResource(ctx, project, instance, name)
 }

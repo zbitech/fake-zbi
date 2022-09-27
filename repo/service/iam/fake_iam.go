@@ -29,8 +29,6 @@ type FakeIAMService struct {
 	FakeGetUserPolicy             func(ctx context.Context, userId string) (*entity.UserPolicy, error)
 	FakeStoreAPIKeyPolicy         func(ctx context.Context, p entity.APIKeyPolicy) error
 	FakeGetAPIKeyPolicy           func(ctx context.Context, key string) (*entity.APIKeyPolicy, error)
-	FakeCreateProfileEvent        func(ctx context.Context, userId, actor string, action ztypes.EventAction, evtError error) error
-	FakeGetProfileEvents          func(ctx context.Context, userId string) ([]entity.ProfileEvent, error)
 	FakeStoreInstancePolicy       func(ctx context.Context, p entity.InstancePolicy) error
 	FakeStoreInstancePolicies     func(ctx context.Context, p []entity.InstancePolicy) error
 	FakeGetInstancePolicy         func(ctx context.Context, project, instance string) (*entity.InstancePolicy, error)
@@ -50,22 +48,14 @@ type FakeIAMService struct {
 	FakeUpdateTeam                func(ctx context.Context, team *entity.Team) error
 	FakeDeleteTeam                func(ctx context.Context, teamId string) error
 	FakeGetTeamByOwner            func(ctx context.Context, owner string) (*entity.Team, error)
-	FakeGetTeamMembers            func(ctx context.Context, teamId string) ([]entity.TeamMember, error)
-	FakeAddTeamMember             func(ctx context.Context, teamId string, member entity.TeamMember) error
-	FakeRemoveTeamMember          func(ctx context.Context, teamId string, key string) error
-	FakeUpdateTeamMember          func(ctx context.Context, member *entity.TeamMember) error
-	FakeGetAllMemberships         func(ctx context.Context) ([]entity.TeamMember, error)
-	FakeGetTeamMemberships        func(ctx context.Context, email string) ([]entity.TeamMember, error)
-	FakeGetTeamMembership         func(ctx context.Context, key string) (*entity.TeamMember, error)
-	FakeGetTeamMembershipByEmail  func(ctx context.Context, team, email string) (*entity.TeamMember, error)
-	FakeCreateTeamEvent           func(ctx context.Context, teamId, userId string, action ztypes.EventAction, evtError error) error
-	FakeGetTeamEvents             func(ctx context.Context, teamId string) ([]entity.TeamEvent, error)
 	FakeGetResourceStats          func(ctx context.Context, owner string) *entity.ResourceSummary
-	FakeUpdateTeamMembershipEmail func(ctx context.Context, oldEmail, newEmail string) error
-	FakeGetTeamMembershipByKey    func(ctx context.Context, key string) (*entity.TeamMember, error)
-	FakeGetTeamMembershipsByEmail func(ctx context.Context, email string) ([]entity.TeamMembership, error)
-	FakeGetTeamMembershipByUser   func(ctx context.Context, team, userId string) (*entity.TeamMember, error)
-	FakeGetTeamMembershipsByUser  func(ctx context.Context, userId string) ([]entity.TeamMembership, error)
+	FakeDeleteUser                func(ctx context.Context, user *entity.User) error
+	FakeAddTeamMember             func(ctx context.Context, teamId, key, email, userid string, admin bool, status ztypes.InvitationStatus) error
+	FakeUpdateTeamMember          func(ctx context.Context, teamId, key, email string, admin bool) error
+	FakeUpdateTeamMemberEmail     func(ctx context.Context, teamId, key, email string) error
+	FakeUpdateTeamMemberRole      func(ctx context.Context, teamId, key string, admin bool) error
+	FakeUpdateTeamMemberStatus    func(ctx context.Context, teamId, key string, status ztypes.InvitationStatus) error
+	FakeDeleteTeamMember          func(ctx context.Context, teamId, key string) error
 }
 
 func NewFakeIAMService() interfaces.IAMServiceIF {
@@ -130,14 +120,6 @@ func (f FakeIAMService) CreateAPIKey(ctx context.Context, userid string) (*entit
 
 func (f FakeIAMService) DeleteAPIKey(ctx context.Context, apiKey string) error {
 	return f.FakeDeleteAPIKey(ctx, apiKey)
-}
-
-func (f FakeIAMService) CreateProfileEvent(ctx context.Context, userId, actor string, action ztypes.EventAction, evtError error) error {
-	return f.FakeCreateProfileEvent(ctx, userId, actor, action, evtError)
-}
-
-func (f FakeIAMService) GetProfileEvents(ctx context.Context, userId string) ([]entity.ProfileEvent, error) {
-	return f.FakeGetProfileEvents(ctx, userId)
 }
 
 func (f FakeIAMService) StoreUserPolicy(ctx context.Context, p entity.UserPolicy) error {
@@ -224,74 +206,38 @@ func (f FakeIAMService) GetTeamByOwner(ctx context.Context, owner string) (*enti
 	return f.FakeGetTeamByOwner(ctx, owner)
 }
 
-func (f FakeIAMService) GetTeamMembers(ctx context.Context, teamId string) ([]entity.TeamMember, error) {
-	return f.FakeGetTeamMembers(ctx, teamId)
-}
-
-func (f FakeIAMService) AddTeamMember(ctx context.Context, teamId string, member entity.TeamMember) error {
-	return f.FakeAddTeamMember(ctx, teamId, member)
-}
-
-func (f FakeIAMService) RemoveTeamMember(ctx context.Context, teamId string, key string) error {
-	return f.FakeRemoveTeamMember(ctx, teamId, key)
-}
-
-func (f FakeIAMService) UpdateTeamMember(ctx context.Context, member *entity.TeamMember) error {
-	return f.FakeUpdateTeamMember(ctx, member)
-}
-
-func (f FakeIAMService) GetAllMemberships(ctx context.Context) ([]entity.TeamMember, error) {
-	return f.FakeGetAllMemberships(ctx)
-}
-
-func (f FakeIAMService) GetTeamMemberships(ctx context.Context, email string) ([]entity.TeamMember, error) {
-	return f.FakeGetTeamMemberships(ctx, email)
-}
-
-func (f FakeIAMService) GetTeamMembership(ctx context.Context, key string) (*entity.TeamMember, error) {
-	return f.FakeGetTeamMembership(ctx, key)
-}
-
-func (f FakeIAMService) GetTeamMembershipByEmail(ctx context.Context, team, email string) (*entity.TeamMember, error) {
-	return f.FakeGetTeamMembershipByEmail(ctx, team, email)
-}
-
 func (f FakeIAMService) GetTeamsByOwner(ctx context.Context, owner string) ([]entity.Team, error) {
 	return f.FakeGetTeamsByOwner(ctx, owner)
 }
 
-func (f FakeIAMService) GetTeamsByMembership(ctx context.Context, email string) ([]entity.Team, error) {
-	return f.FakeGetTeamsByMembership(ctx, email)
-}
-
-func (f FakeIAMService) UpdateTeamMembershipEmail(ctx context.Context, oldEmail, newEmail string) error {
-	return f.FakeUpdateTeamMembershipEmail(ctx, oldEmail, newEmail)
-}
-
-func (f FakeIAMService) GetTeamMembershipByKey(ctx context.Context, key string) (*entity.TeamMember, error) {
-	return f.FakeGetTeamMembershipByKey(ctx, key)
-}
-
-func (f FakeIAMService) GetTeamMembershipsByEmail(ctx context.Context, email string) ([]entity.TeamMembership, error) {
-	return f.FakeGetTeamMembershipsByEmail(ctx, email)
-}
-
-func (f FakeIAMService) GetTeamMembershipByUser(ctx context.Context, team, userId string) (*entity.TeamMember, error) {
-	return f.FakeGetTeamMembershipByUser(ctx, team, userId)
-}
-
-func (f FakeIAMService) GetTeamMembershipsByUser(ctx context.Context, userId string) ([]entity.TeamMembership, error) {
-	return f.FakeGetTeamMembershipsByUser(ctx, userId)
-}
-
-func (f FakeIAMService) CreateTeamEvent(ctx context.Context, teamId, actor string, action ztypes.EventAction, evtError error, target ...string) error {
-	return f.FakeCreateTeamEvent(ctx, teamId, actor, action, evtError)
-}
-
-func (f FakeIAMService) GetTeamEvents(ctx context.Context, teamId string) ([]entity.TeamEvent, error) {
-	return f.FakeGetTeamEvents(ctx, teamId)
-}
-
 func (f FakeIAMService) GetResourceStats(ctx context.Context, owner string) *entity.ResourceSummary {
 	return f.FakeGetResourceStats(ctx, owner)
+}
+
+func (f FakeIAMService) DeleteUser(ctx context.Context, user *entity.User) error {
+	return f.FakeDeleteUser(ctx, user)
+}
+
+func (f FakeIAMService) AddTeamMember(ctx context.Context, teamId, key, email, userid string, admin bool, status ztypes.InvitationStatus) error {
+	return f.FakeAddTeamMember(ctx, teamId, key, email, userid, admin, status)
+}
+
+func (f FakeIAMService) UpdateTeamMember(ctx context.Context, teamId, key, email string, admin bool) error {
+	return f.FakeUpdateTeamMember(ctx, teamId, key, email, admin)
+}
+
+func (f FakeIAMService) UpdateTeamMemberEmail(ctx context.Context, teamId, key, email string) error {
+	return f.FakeUpdateTeamMemberEmail(ctx, teamId, key, email)
+}
+
+func (f FakeIAMService) UpdateTeamMemberRole(ctx context.Context, teamId, key string, admin bool) error {
+	return f.FakeUpdateTeamMemberRole(ctx, teamId, key, admin)
+}
+
+func (f FakeIAMService) UpdateTeamMemberStatus(ctx context.Context, teamId, key string, status ztypes.InvitationStatus) error {
+	return f.FakeUpdateTeamMemberStatus(ctx, teamId, key, status)
+}
+
+func (f FakeIAMService) DeleteTeamMember(ctx context.Context, teamId, key string) error {
+	return f.FakeDeleteTeamMember(ctx, teamId, key)
 }

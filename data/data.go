@@ -15,6 +15,9 @@ var (
 	instanceTypes     = []interface{}{ztypes.InstanceTypeZCASH, ztypes.InstanceTypeLWD}
 	roleTypes         = []interface{}{ztypes.RoleUser, ztypes.RoleOwner}
 	subscriptionTypes = []interface{}{ztypes.SubscriptionTeamMember, ztypes.SubscriptionBronzeLevel}
+	snapshotTypes     = []interface{}{ztypes.VolumeSnapshot, ztypes.BackupSchedule}
+	scheduleTypes     = []interface{}{ztypes.HourlySnapshotScheduled, ztypes.DailySnapshotSchedule, ztypes.WeeklySnapshotSchedule, ztypes.MonthlySnapshotSchedule}
+	resourceStatus    = []interface{}{"active", "deleted", "failed", "pending"}
 )
 
 func randomString(n int) string {

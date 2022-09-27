@@ -6,53 +6,61 @@ import (
 	"github.com/zbitech/common/pkg/model/entity"
 	"github.com/zbitech/common/pkg/model/k8s"
 	"github.com/zbitech/common/pkg/model/object"
+	"github.com/zbitech/common/pkg/model/ztypes"
 )
 
 type FakeZBIClient struct {
 	client interfaces.KlientIF
 
-	FakeRunInformer                func(ctx context.Context)
-	FakeCreateIngress              func(ctx context.Context, project *entity.Project, instance *entity.Instance) ([]entity.KubernetesResource, error)
-	FakeUpdateControllerIngress    func(ctx context.Context, project *entity.Project, action string) ([]entity.KubernetesResource, error)
-	FakeUpdateProjectIngress       func(ctx context.Context, project *entity.Project, instance entity.InstanceIF, action string) ([]entity.KubernetesResource, error)
-	FakeValidateProjectRequest     func(ctx context.Context, request *object.ProjectRequest) (bool, map[string]string)
-	FakeCreateProject              func(ctx context.Context, request *object.ProjectRequest) (*entity.Project, error)
-	FakeCreateProjectResources     func(ctx context.Context, project *entity.Project) ([]entity.KubernetesResource, error)
-	FakeUpdateProject              func(ctx context.Context, project *entity.Project, request *object.ProjectRequest) error
-	FakeDeleteProject              func(ctx context.Context, name string) error
-	FakeGetAllProjects             func(ctx context.Context) ([]entity.Project, error)
-	FakeGetProject                 func(ctx context.Context, name string) (*entity.Project, error)
-	FakeGetProjectsByOwner         func(ctx context.Context, owner string) ([]entity.Project, error)
-	FakeGetProjectsByTeam          func(ctx context.Context, team string) ([]entity.Project, error)
-	FakeGetProjectResources        func(ctx context.Context, project *entity.Project) ([]entity.KubernetesResource, error)
-	FakeValidateInstanceRequest    func(ctx context.Context, project *entity.Project, request object.InstanceRequestIF) (bool, map[string]string)
-	FakeCreateInstance             func(ctx context.Context, project *entity.Project, request object.InstanceRequestIF) (entity.InstanceIF, error)
-	FakeUpdateInstance             func(ctx context.Context, project *entity.Project, instance entity.InstanceIF, request object.InstanceRequestIF) error
-	FakeDeleteInstance             func(ctx context.Context, project *entity.Project, instance entity.InstanceIF) error
-	FakeCreateInstanceResources    func(ctx context.Context, project *entity.Project, instance entity.InstanceIF) ([]entity.KubernetesResource, error)
-	FakeStopInstance               func(ctx context.Context, project *entity.Project, instance entity.InstanceIF) error
-	FakeStartInstance              func(ctx context.Context, project *entity.Project, instance entity.InstanceIF) ([]entity.KubernetesResource, error)
-	FakeBackupInstance             func(ctx context.Context, instance entity.InstanceIF, request *object.SnapshotRequest) ([]entity.KubernetesResource, error)
-	FakeRotateInstanceCredentials  func(ctx context.Context, project *entity.Project, instance entity.InstanceIF) ([]entity.KubernetesResource, error)
-	FakeDeleteInstanceVolumes      func(ctx context.Context, project *entity.Project, instance entity.InstanceIF) error
-	FakeGetAllInstances            func(ctx context.Context) ([]entity.InstanceIF, error)
-	FakeGetInstancesByProject      func(ctx context.Context, project string) ([]entity.InstanceIF, error)
-	FakeGetInstancesByOwner        func(ctx context.Context, owner string) ([]entity.InstanceIF, error)
-	FakeGetInstanceByName          func(ctx context.Context, project, instance string) (entity.InstanceIF, error)
-	FakeGetInstanceResources       func(ctx context.Context, project *entity.Project, instance entity.InstanceIF) ([]entity.KubernetesResource, error)
-	FakeGetStorageClasses          func(ctx context.Context) []k8s.StorageClass
-	FakeGetSnapshotClasses         func(ctx context.Context) []k8s.SnapshotClass
-	FakeCreateInstanceBackup       func(ctx context.Context, instance entity.InstanceIF, req *object.SnapshotRequest) (*entity.KubernetesResource, error)
-	FakeScheduleInstanceBackup     func(ctx context.Context, instance entity.InstanceIF, req *object.SnapshotScheduleRequest) (*entity.KubernetesResource, error)
-	FakeGetInstanceVolumes         func(ctx context.Context, instance entity.InstanceIF) []k8s.InstanceVolume
-	FakeGetInstanceSnapshots       func(ctx context.Context, instance entity.InstanceIF) []k8s.Snapshot
-	FakeGetInstanceSchedules       func(ctx context.Context, instance entity.InstanceIF) []k8s.SnapshotSchedule
-	FakeGetResourceSummary         func(ctx context.Context) map[string]interface{}
-	FakeGetProjectResourceSummary  func(ctx context.Context, project *entity.Project, extraLabels map[string]string) map[string]interface{}
-	FakeGetInstanceResourceSummary func(ctx context.Context, instance entity.InstanceIF, extraLabels map[string]string) map[string]interface{}
-	FakeDeleteInstanceVolume       func(ctx context.Context, instance entity.InstanceIF, name string) error
-	FakeDeleteInstanceSnapshot     func(ctx context.Context, instance entity.InstanceIF, name string) error
-	FakeDeleteInstanceSchedule     func(ctx context.Context, instance entity.InstanceIF, name string) error
+	FakeRunInformer                  func(ctx context.Context)
+	FakeCreateIngress                func(ctx context.Context, project *entity.Project, instance *entity.Instance) ([]entity.KubernetesResource, error)
+	FakeUpdateControllerIngress      func(ctx context.Context, project *entity.Project, action string) ([]entity.KubernetesResource, error)
+	FakeUpdateProjectIngress         func(ctx context.Context, project *entity.Project, instance entity.InstanceIF, action string) ([]entity.KubernetesResource, error)
+	FakeValidateProjectRequest       func(ctx context.Context, request *object.ProjectRequest) (bool, map[string]string)
+	FakeCreateProject                func(ctx context.Context, request *object.ProjectRequest) (*entity.Project, error)
+	FakeCreateProjectResources       func(ctx context.Context, project *entity.Project) ([]entity.KubernetesResource, error)
+	FakeUpdateProject                func(ctx context.Context, project *entity.Project, request *object.ProjectRequest) error
+	FakeDeleteProject                func(ctx context.Context, name string) error
+	FakeGetAllProjects               func(ctx context.Context) ([]entity.Project, error)
+	FakeGetProject                   func(ctx context.Context, name string) (*entity.Project, error)
+	FakeGetProjectsByOwner           func(ctx context.Context, owner string) ([]entity.Project, error)
+	FakeGetProjectsByTeam            func(ctx context.Context, team string) ([]entity.Project, error)
+	FakeGetProjectResources          func(ctx context.Context, project *entity.Project) ([]entity.KubernetesResource, error)
+	FakeValidateInstanceRequest      func(ctx context.Context, project *entity.Project, request object.InstanceRequestIF) (bool, map[string]string)
+	FakeCreateInstance               func(ctx context.Context, project *entity.Project, request object.InstanceRequestIF) (entity.InstanceIF, error)
+	FakeUpdateInstance               func(ctx context.Context, project *entity.Project, instance entity.InstanceIF, request object.InstanceRequestIF) error
+	FakeDeleteInstance               func(ctx context.Context, project *entity.Project, instance entity.InstanceIF) error
+	FakeCreateInstanceResources      func(ctx context.Context, project *entity.Project, instance entity.InstanceIF) ([]entity.KubernetesResource, error)
+	FakeStopInstance                 func(ctx context.Context, project *entity.Project, instance entity.InstanceIF) error
+	FakeStartInstance                func(ctx context.Context, project *entity.Project, instance entity.InstanceIF) ([]entity.KubernetesResource, error)
+	FakeBackupInstance               func(ctx context.Context, instance entity.InstanceIF, request *object.SnapshotRequest) ([]entity.KubernetesResource, error)
+	FakeRotateInstanceCredentials    func(ctx context.Context, project *entity.Project, instance entity.InstanceIF) ([]entity.KubernetesResource, error)
+	FakeDeleteInstanceVolumes        func(ctx context.Context, project *entity.Project, instance entity.InstanceIF) error
+	FakeGetAllInstances              func(ctx context.Context) ([]entity.InstanceIF, error)
+	FakeGetInstancesByProject        func(ctx context.Context, project string) ([]entity.InstanceIF, error)
+	FakeGetInstancesByOwner          func(ctx context.Context, owner string) ([]entity.InstanceIF, error)
+	FakeGetInstanceByName            func(ctx context.Context, project, instance string) (entity.InstanceIF, error)
+	FakeGetInstanceResources         func(ctx context.Context, project *entity.Project, instance entity.InstanceIF) ([]entity.KubernetesResource, error)
+	FakeGetStorageClasses            func(ctx context.Context) []k8s.StorageClass
+	FakeGetSnapshotClasses           func(ctx context.Context) []k8s.SnapshotClass
+	FakeCreateInstanceBackup         func(ctx context.Context, instance entity.InstanceIF, volumeName string) (*entity.KubernetesResource, error)
+	FakeScheduleInstanceBackup       func(ctx context.Context, instance entity.InstanceIF, volumeName string, schedule ztypes.ZBIBackupScheduleType) (*entity.KubernetesResource, error)
+	FakeGetInstanceVolumes           func(ctx context.Context, instance entity.InstanceIF) []k8s.InstanceVolume
+	FakeGetInstanceSnapshots         func(ctx context.Context, instance entity.InstanceIF) []k8s.Snapshot
+	FakeGetInstanceSchedules         func(ctx context.Context, instance entity.InstanceIF) []k8s.SnapshotSchedule
+	FakeGetResourceSummary           func(ctx context.Context) map[string]interface{}
+	FakeGetProjectResourceSummary    func(ctx context.Context, project *entity.Project, extraLabels map[string]string) map[string]interface{}
+	FakeGetInstanceResourceSummary   func(ctx context.Context, instance entity.InstanceIF, extraLabels map[string]string) map[string]interface{}
+	FakeDeleteInstanceVolume         func(ctx context.Context, instance entity.InstanceIF, name string) error
+	FakeDeleteInstanceSnapshot       func(ctx context.Context, instance entity.InstanceIF, name string) error
+	FakeDeleteInstanceSchedule       func(ctx context.Context, instance entity.InstanceIF, name string) error
+	FakeGetProjectSnapshots          func(ctx context.Context, project *entity.Project) []k8s.Snapshot
+	FakeGetProjectSchedules          func(ctx context.Context, project *entity.Project) []k8s.SnapshotSchedule
+	FakeGetInstanceResource          func(ctx context.Context, instance entity.InstanceIF, iType ztypes.ResourceObjectType, name string) (*entity.KubernetesResource, error)
+	FakeGetInstanceSnapshotResources func(ctx context.Context, instance entity.InstanceIF) ([]entity.SnapshotResource, error)
+	FakeGetInstanceScheduleResources func(ctx context.Context, instance entity.InstanceIF) ([]entity.ScheduleResource, error)
+	FakeRepairInstance               func(ctx context.Context, instance entity.InstanceIF) error
+	FakeReactivateInstance           func(ctx context.Context, instance entity.InstanceIF) error
 }
 
 func NewFakeZBIClient(client interfaces.KlientIF) (interfaces.ZBIClientIF, error) {
@@ -134,7 +142,7 @@ func (f FakeZBIClient) DeleteInstance(ctx context.Context, project *entity.Proje
 	return f.FakeDeleteInstance(ctx, project, instance)
 }
 
-func (f FakeZBIClient) CreateInstanceResources(ctx context.Context, project *entity.Project, instance entity.InstanceIF) ([]entity.KubernetesResource, error) {
+func (f FakeZBIClient) CreateInstanceResources(ctx context.Context, project *entity.Project, instance entity.InstanceIF, event ztypes.EventAction) ([]entity.KubernetesResource, error) {
 	return f.FakeCreateInstanceResources(ctx, project, instance)
 }
 
@@ -198,16 +206,24 @@ func (f FakeZBIClient) GetSnapshotClasses(ctx context.Context) []k8s.SnapshotCla
 	return f.FakeGetSnapshotClasses(ctx)
 }
 
-func (f FakeZBIClient) CreateInstanceBackup(ctx context.Context, instance entity.InstanceIF, req *object.SnapshotRequest) (*entity.KubernetesResource, error) {
-	return f.FakeCreateInstanceBackup(ctx, instance, req)
+func (f FakeZBIClient) CreateInstanceBackup(ctx context.Context, instance entity.InstanceIF, volumeName string) (*entity.KubernetesResource, error) {
+	return f.FakeCreateInstanceBackup(ctx, instance, volumeName)
 }
 
-func (f FakeZBIClient) ScheduleInstanceBackup(ctx context.Context, instance entity.InstanceIF, req *object.SnapshotScheduleRequest) (*entity.KubernetesResource, error) {
-	return f.FakeScheduleInstanceBackup(ctx, instance, req)
+func (f FakeZBIClient) ScheduleInstanceBackup(ctx context.Context, instance entity.InstanceIF, volumeName string, schedule ztypes.ZBIBackupScheduleType) (*entity.KubernetesResource, error) {
+	return f.FakeScheduleInstanceBackup(ctx, instance, volumeName, schedule)
 }
 
 func (f FakeZBIClient) GetInstanceVolumes(ctx context.Context, instance entity.InstanceIF) []k8s.InstanceVolume {
 	return f.FakeGetInstanceVolumes(ctx, instance)
+}
+
+func (f FakeZBIClient) GetInstanceSnapshotResources(ctx context.Context, instance entity.InstanceIF) ([]entity.SnapshotResource, error) {
+	return f.FakeGetInstanceSnapshotResources(ctx, instance)
+}
+
+func (f FakeZBIClient) GetInstanceScheduleResources(ctx context.Context, instance entity.InstanceIF) ([]entity.ScheduleResource, error) {
+	return f.FakeGetInstanceScheduleResources(ctx, instance)
 }
 
 func (f FakeZBIClient) GetInstanceSnapshots(ctx context.Context, instance entity.InstanceIF) []k8s.Snapshot {
@@ -228,4 +244,24 @@ func (f FakeZBIClient) GetProjectResourceSummary(ctx context.Context, project *e
 
 func (f FakeZBIClient) GetInstanceResourceSummary(ctx context.Context, instance entity.InstanceIF, extraLabels map[string]string) map[string]interface{} {
 	return f.FakeGetInstanceResourceSummary(ctx, instance, extraLabels)
+}
+
+func (f FakeZBIClient) GetProjectSnapshots(ctx context.Context, project *entity.Project) []k8s.Snapshot {
+	return f.FakeGetProjectSnapshots(ctx, project)
+}
+
+func (f FakeZBIClient) GetProjectSchedules(ctx context.Context, project *entity.Project) []k8s.SnapshotSchedule {
+	return f.FakeGetProjectSchedules(ctx, project)
+}
+
+func (f FakeZBIClient) GetInstanceResource(ctx context.Context, instance entity.InstanceIF, iType ztypes.ResourceObjectType, name string) (*entity.KubernetesResource, error) {
+	return f.FakeGetInstanceResource(ctx, instance, iType, name)
+}
+
+func (f FakeZBIClient) RepairInstance(ctx context.Context, instance entity.InstanceIF) error {
+	return f.FakeRepairInstance(ctx, instance)
+}
+
+func (f FakeZBIClient) ReactivateInstance(ctx context.Context, instance entity.InstanceIF) error {
+	return f.FakeReactivateInstance(ctx, instance)
 }

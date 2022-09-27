@@ -9,10 +9,10 @@ var (
 	Owner1Team = entity.NewTeam("My Team", Owner1.Email, Owner1.UserId)
 	Owner2Team = entity.NewTeam("My Team", Owner2.Email, Owner2.UserId)
 
-	Owner1TeamAdminMbr = entity.NewTeamMember(Owner1Team.TeamId, id.GenerateKey(), Owner1TeamAdmin.Email, true)
-	Owner1TeamUserMbr  = entity.NewTeamMember(Owner1Team.TeamId, id.GenerateKey(), Owner1TeamUser.Email, false)
-	Owner2TeamAdminMbr = entity.NewTeamMember(Owner2Team.TeamId, id.GenerateKey(), Owner1TeamAdmin.Email, true)
-	Owner2TeamUserMbr  = entity.NewTeamMember(Owner2Team.TeamId, id.GenerateKey(), Owner2TeamUser.Email, false)
+	Owner1TeamAdminMbr = entity.NewTeamMember(id.GenerateKey(), Owner1TeamAdmin.Email, true)
+	Owner1TeamUserMbr  = entity.NewTeamMember(id.GenerateKey(), Owner1TeamUser.Email, false)
+	Owner2TeamAdminMbr = entity.NewTeamMember(id.GenerateKey(), Owner1TeamAdmin.Email, true)
+	Owner2TeamUserMbr  = entity.NewTeamMember(id.GenerateKey(), Owner2TeamUser.Email, false)
 )
 
 func AppendTeams(teams []entity.Team, _teams ...entity.Team) []entity.Team {
@@ -49,10 +49,5 @@ func CreateTeamMembers(count int, props map[string]interface{}) []entity.TeamMem
 }
 
 func CreateTeamMember(props map[string]interface{}) entity.TeamMember {
-	return entity.NewTeamMember(
-		getProperty(props, "teamid", randomString(10)).(string),
-		id.GenerateKey(),
-		getProperty(props, "email", randomString(10)+"@zbitech.io").(string),
-		getProperty(props, "admin", randomValue(boolean)).(bool),
-	)
+	return entity.NewTeamMember(id.GenerateKey(), getProperty(props, "email", randomString(10)+"@zbitech.io").(string), getProperty(props, "admin", randomValue(boolean)).(bool))
 }
